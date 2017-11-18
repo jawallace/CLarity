@@ -1,0 +1,5 @@
+_build/
+.syntastic_config
+.vimrc
+**/*.swp
+

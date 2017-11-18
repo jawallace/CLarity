@@ -1,5 +1,5 @@
 # CLarity
-Project for EN.605.417.81 - Introduction to Computer Programming
+Project for EN.605.417.81 - Introduction to GPU Programming
 
 # Building
 

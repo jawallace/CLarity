@@ -56,13 +56,14 @@ public:
     double & at(const uint32_t row, const uint32_t col, const uint8_t depth = 0);
 
 
-    //! @brief      Get the size of the terrain map, in cells
+    //! @brief      Get the size of the Buffer, in cells
     std::pair<uint32_t, uint32_t> size() const;
 
 
+    //! @brief      Get the depth of the Buffer
     uint8_t depth() const;
 
-private:
+protected:
     //! The number of rows in the terrain map
     uint32_t m_rows;
 

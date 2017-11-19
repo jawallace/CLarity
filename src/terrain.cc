@@ -21,9 +21,18 @@ namespace clarity
 {
 
 Terrain::Terrain(const uint32_t rows, const uint32_t cols, const double scale_m_per_cell)
-    : m_buffer(rows, cols)
+    : m_buffer(new Buffer(rows, cols))
     , m_scale_m_per_cell(scale_m_per_cell)
 {
+    // No-op
+}
+
+
+Terrain::Terrain(std::shared_ptr<Buffer> buffer, const double scale_m_per_cell)
+    : m_buffer(buffer)
+    , m_scale_m_per_cell(scale_m_per_cell)
+{
+    // No-op
 }
 
 
@@ -56,7 +65,7 @@ Terrain & Terrain::operator=(const Terrain & other)
 
 Buffer & Terrain::data()
 {
-    return m_buffer;
+    return *m_buffer;
 }
 
 

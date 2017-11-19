@@ -32,6 +32,13 @@ public:
     Terrain(const uint32_t rows, const uint32_t cols, const double scale_m_per_cell);
 
 
+    //! @brief Constructor for the Terrain type
+    //!
+    //! @param[in] buffer               the buffer to use
+    //! @param[in] scale_m_per_cell     scale of a cell, in meters per cell/pixel
+    Terrain(std::shared_ptr<Buffer> buffer, const double scale_m_per_cell);
+
+
     //! @brief Destructor for the Terrain type
     ~Terrain();
 
@@ -55,7 +62,7 @@ public:
 
 private:
     //! The underlying buffer
-    Buffer m_buffer;
+    std::shared_ptr<Buffer> m_buffer;
 
     //! The scale of each cell, in meters per cell
     uint32_t m_scale_m_per_cell;

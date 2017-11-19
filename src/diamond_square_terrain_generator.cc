@@ -42,14 +42,15 @@ Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows,
     }
 
     Terrain terrain(rows, cols, scale);
+    Buffer & tbuffer = terrain.data();
 
     // Initialize corners 
-    terrain.at(0, 0) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
-    terrain.at(0, cols - 1) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
-    terrain.at(rows - 1, 0) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
-    terrain.at(rows - 1, cols - 1) = Diamond_Square_Generator::MAX_HEIGHT_M / 2;
+    tbuffer.at(0, 0) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
+    tbuffer.at(0, cols - 1) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
+    tbuffer.at(rows - 1, 0) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
+    tbuffer.at(rows - 1, cols - 1) = Diamond_Square_Generator::MAX_HEIGHT_M / 2;
 
-    // Generate the terrain
+    // Generate the tbuffer
     uint32_t size = rows;
     uint32_t half = rows / 2;
 
@@ -66,10 +67,10 @@ Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows,
             for (uint32_t c = half; c < cols; c += size) {
                 const double offset = rng(gen);
                 
-                const double sum = terrain.at(r - half, c - half) + terrain.at(r - half, c + half) +
-                                   terrain.at(r + half, c - half) + terrain.at(r + half, c + half);
+                const double sum = tbuffer.at(r - half, c - half) + tbuffer.at(r - half, c + half) +
+                                   tbuffer.at(r + half, c - half) + tbuffer.at(r + half, c + half);
 
-                terrain.at(r, c) = (sum / 4) + offset;
+                tbuffer.at(r, c) = (sum / 4) + offset;
             }
         }
    
@@ -78,10 +79,10 @@ Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows,
             for (uint32_t c = 0; c < cols; c += half) {
                 const double offset = rng(gen);
                 
-                const double sum = terrain.at(r, c - size) + terrain.at(r + size, c) + 
-                                   terrain.at(r, c + size) + terrain.at(r - size, c);
+                const double sum = tbuffer.at(r, c - size) + tbuffer.at(r + size, c) + 
+                                   tbuffer.at(r, c + size) + tbuffer.at(r - size, c);
 
-                terrain.at(r, c) = (sum / 4) + offset;
+                tbuffer.at(r, c) = (sum / 4) + offset;
             }
         }
         

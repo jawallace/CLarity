@@ -7,6 +7,7 @@
 #pragma once
 
 // CLarity Imports
+#include "buffer.h"
 
 // Standard Imports
 #include <cstdint>
@@ -45,34 +46,19 @@ public:
     Terrain & operator=(const Terrain & other);
 
 
-    //! @brief      Access the Terrain data
-    //! @detail     Get a handle to the underling buffer
-    std::shared_ptr<double> data();
-
-
-    //! @brief      Get a handle to the element at the given row and column
-    double & at(const uint32_t row, const uint32_t col);
-
-
-    //! @brief      Get the size of the terrain map, in cells
-    std::pair<uint32_t, uint32_t> size() const;
+    //! @brief      Get a reference to the buffer
+    Buffer & data();
 
 
     //! @brief      Get the scale of each Terrain map cell
     double scale() const;
 
 private:
-    //! The number of rows in the terrain map
-    uint32_t m_rows;
+    //! The underlying buffer
+    Buffer m_buffer;
 
-    //! The number of columns in the terrain map
-    uint32_t m_cols;
-    
     //! The scale of each cell, in meters per cell
     uint32_t m_scale_m_per_cell;
-    
-    //! The scale of each cell, in meters per cell
-    std::shared_ptr<double> m_data;
 };
 
 }

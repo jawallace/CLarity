@@ -2,11 +2,22 @@ cmake_minimum_required(VERSION 2.6)
 
 project(CLarity)
 
-file(GLOB CLARITY_SOURCES "src/*.cc")
+# OpenCL resources
+find_package(OpenCL REQUIRED)
+set(BUILD_TESTS OFF CACHE BOOL "Build Unit Tests" FORCE)
 
+# Project sources
+configure_file(${CLarity_SOURCE_DIR}/include/clarity_config.h.in 
+               ${CLarity_SOURCE_DIR}/include/clarity_config.h)
+file(GLOB CLARITY_SOURCES "src/*.cc")
 add_library(clarity SHARED ${CLARITY_SOURCES})
-target_include_directories(clarity PUBLIC ${CLarity_SOURCE_DIR}/include)
+message(STATUS ${CLarity_SOURCE_DIR})
+target_include_directories(clarity PUBLIC 
+                           ${CLarity_SOURCE_DIR}/include 
+                           ${OpenCL_INCLUDE_DIRS} 
+                           ${CLarity_SOURCE_DIR}/third_party/khronos)
 target_compile_options(clarity PUBLIC "-std=c++14" "-Werror" "-Wall" "-Wextra" "-Wpedantic")
+target_link_libraries(clarity ${OpenCL_LIBRARY})
 
 option(BUILD_UNITTESTS "Builds the unitests for clarity" ON)
 

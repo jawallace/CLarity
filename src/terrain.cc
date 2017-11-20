@@ -63,6 +63,12 @@ Terrain & Terrain::operator=(const Terrain & other)
 }
 
 
+const Buffer & Terrain::data() const
+{
+    return *m_buffer;
+}
+
+
 Buffer & Terrain::data()
 {
     return *m_buffer;

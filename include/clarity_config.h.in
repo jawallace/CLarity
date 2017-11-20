@@ -9,6 +9,7 @@
 // CLarity Imports
 
 // Standard Imports
+#include <string>
 
 // Third-Party Imports
 

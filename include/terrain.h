@@ -53,9 +53,11 @@ public:
     Terrain & operator=(const Terrain & other);
 
 
-    //! @brief      Get a reference to the buffer
-    Buffer & data();
+    //! @brief      get a reference to the buffer
+    const Buffer & data() const;
 
+    //! @brief      get a reference to the buffer
+    Buffer & data();
 
     //! @brief      Get the scale of each Terrain map cell
     float scale() const;

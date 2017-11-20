@@ -73,6 +73,9 @@ public:
     //! @param[in]  queue   Optinal command queue to use. The default will be used otherwise
     void to_device(const cl::CommandQueue * queu = nullptr);
 
+
+    inline const cl::Buffer & get_cl_buffer() const { return m_cl_buffer; }
+
 private:
     //! An OpenCL error indicator for the constructor
     cl_int m_ctor_err;

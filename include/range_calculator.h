@@ -36,9 +36,8 @@ class Range_Calculator
     //!
     //! @param[in]  cam     the Camera in the scene
     //! @param[in]  t       the Terrain in the scene
-    //! @param[out] rng     a Buffer into which the range image will be placed. If nullptr is
-    //!                     passed in, a Buffer will be allocated.
-    virtual void Calculate(const Camera & cam, const Terrain & t, Buffer * rng) = 0;
+    //! @param[out] rng     a Buffer into which the range image will be placed. 
+    virtual void Calculate(const Camera & cam, const Terrain & t, Buffer & rng) = 0;
 
 
     //! @brief      Compute the Camera coordinates of each pixel in the Camera.
@@ -48,10 +47,9 @@ class Range_Calculator
     //!             the pointing vector of the pixel relative to Camera boresight.
     //!
     //! @param[in]  cam         The Camera in the secne
-    //! @param[out] cam_coords  a Buffer into which the Camera coordinates will be placed. if
-    //!                         nullptr is bassed in, a Buffer will be allocated
+    //! @param[out] cam_coords  a Buffer into which the Camera coordinates will be placed. 
     virtual void Convert_Pixel_To_Camera_Coordinates(const Camera & cam, 
-                                                     Buffer * cam_coords) = 0;
+                                                     Buffer & cam_coords) = 0;
 
 
     //! @brief      Compute the World coordinate of each pixel in the Camera.
@@ -63,22 +61,21 @@ class Range_Calculator
     //! 
     //! @param[in]  cam             the Camera in the scene
     //! @param[in]  cam_coords      the camera coordinates of each pixel in the Camera
-    //! @param[out] world_coords    a Buffer into which the Camera coordinates will be placed. If
-    //!                             nullptr is passed in, a Buffer will be allocated. cam_coords
-    //!                             and world_coords may point to the same buffer.
+    //! @param[out] world_coords    a Buffer into which the Camera coordinates will be placed. 
     virtual void Convert_Camera_To_World_Coordinates(const Camera & cam, 
                                                      const Buffer & cam_coords, 
-                                                     Buffer * world_coords) = 0;
+                                                     Buffer & world_coords) = 0;
 
     //! @brief      Compute the range image for the given Terrain and pointing vector buffer.
-    //!
+    //!  
+    //! @param[in]  cam             the Camera in the scene
     //! @param[in]  t               The Terrain to map
     //! @param[in]  world_coords    the poiting vector of each pixel, in world coordinates
-    //! @param[out] rng             a Buffer into which the range image will be placed. If nullptr
-    //!                             is passed in, a Buffer will be allocated.
-    virtual void Compute_Range(const Terrain & t, 
+    //! @param[out] rng             a Buffer into which the range image will be placed.
+    virtual void Compute_Range(const Camera & cam,
+                               const Terrain & t, 
                                const Buffer & world_coords, 
-                               Buffer * rng = nullptr) = 0;
+                               Buffer & rng) = 0;
 
 };
 

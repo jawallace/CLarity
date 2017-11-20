@@ -12,6 +12,7 @@ git submodule init
 mkdir _build
 cd _build
 cmake ..
+make
 ``` 
 
 ## Running Unit Tests

@@ -29,14 +29,14 @@ public:
     //! @param[in] rows                 number of rows in the terrain map
     //! @param[in] cols                 number of cols in the terrain map
     //! @param[in] scale_m_per_cell     scale of a cell, in meters per cell/pixel
-    Terrain(const uint32_t rows, const uint32_t cols, const double scale_m_per_cell);
+    Terrain(const uint32_t rows, const uint32_t cols, const float scale_m_per_cell);
 
 
     //! @brief Constructor for the Terrain type
     //!
     //! @param[in] buffer               the buffer to use
     //! @param[in] scale_m_per_cell     scale of a cell, in meters per cell/pixel
-    Terrain(std::shared_ptr<Buffer> buffer, const double scale_m_per_cell);
+    Terrain(std::shared_ptr<Buffer> buffer, const float scale_m_per_cell);
 
 
     //! @brief Destructor for the Terrain type
@@ -58,7 +58,7 @@ public:
 
 
     //! @brief      Get the scale of each Terrain map cell
-    double scale() const;
+    float scale() const;
 
 private:
     //! The underlying buffer

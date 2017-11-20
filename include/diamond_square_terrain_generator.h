@@ -36,12 +36,11 @@ public:
 
     Terrain generate_terrain(const uint32_t rows, 
                              const uint32_t cols, 
-                             const double scale, 
-                             const double roughness);
+                             const float scale, 
+                             const float roughness);
 
 private:
-    
-    static constexpr double MAX_HEIGHT_M = 3000;
+    static constexpr float MAX_HEIGHT_M = 100;
 };
 
 }

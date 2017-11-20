@@ -18,7 +18,7 @@
 namespace clarity
 {
 
-Camera::Camera(const double field_of_view_rad,
+Camera::Camera(const float field_of_view_rad,
                const uint16_t rows,
                const uint16_t cols)
     : m_field_of_view_rad(field_of_view_rad)
@@ -62,19 +62,19 @@ Camera & Camera::operator=(const Camera & other)
 
 
 // Reference: Francesco Callari https://stackoverflow.com/a/32530762
-double Camera::focal_length() const
+float Camera::focal_length() const
 {
     return (m_focal_plane_size_pixels.second / 2.) / std::tan(m_field_of_view_rad / 2.);
 }
 
 
-double Camera::fov() const
+float Camera::fov() const
 {
     return m_field_of_view_rad;
 }
 
 
-void Camera::set_fov(const double fov_rad)
+void Camera::set_fov(const float fov_rad)
 {
     m_field_of_view_rad = fov_rad;
 }

@@ -20,7 +20,7 @@
 namespace clarity
 {
 
-Terrain::Terrain(const uint32_t rows, const uint32_t cols, const double scale_m_per_cell)
+Terrain::Terrain(const uint32_t rows, const uint32_t cols, const float scale_m_per_cell)
     : m_buffer(new Buffer(rows, cols))
     , m_scale_m_per_cell(scale_m_per_cell)
 {
@@ -28,7 +28,7 @@ Terrain::Terrain(const uint32_t rows, const uint32_t cols, const double scale_m_
 }
 
 
-Terrain::Terrain(std::shared_ptr<Buffer> buffer, const double scale_m_per_cell)
+Terrain::Terrain(std::shared_ptr<Buffer> buffer, const float scale_m_per_cell)
     : m_buffer(buffer)
     , m_scale_m_per_cell(scale_m_per_cell)
 {
@@ -69,7 +69,7 @@ Buffer & Terrain::data()
 }
 
 
-double Terrain::scale() const
+float Terrain::scale() const
 {
     return m_scale_m_per_cell;
 }

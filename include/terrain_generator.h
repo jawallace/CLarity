@@ -32,8 +32,8 @@ public:
     //! @param[in] roughness    the roughness of the generated terrain, in range [0, 1)
     virtual Terrain generate_terrain(const uint32_t rows, 
                                      const uint32_t cols, 
-                                     const double scale, 
-                                     const double roughness) = 0;
+                                     const float scale, 
+                                     const float roughness) = 0;
 
 };
 

@@ -49,11 +49,11 @@ public:
 
     //! @brief      Access the Buffer data
     //! @detail     Get a handle to the underling buffer
-    std::shared_ptr<double> data();
+    std::shared_ptr<float> data();
 
 
     //! @brief      Get a handle to the element at the given row and column
-    double & at(const uint32_t row, const uint32_t col, const uint8_t depth = 0);
+    float & at(const uint32_t row, const uint32_t col, const uint8_t depth = 0);
 
 
     //! @brief      Get the size of the Buffer, in cells
@@ -74,7 +74,7 @@ protected:
     uint8_t m_depth;
 
     //! The scale of each cell, in meters per cell
-    std::shared_ptr<double> m_data;
+    std::shared_ptr<float> m_data;
 };
 
 }

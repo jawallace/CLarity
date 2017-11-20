@@ -23,7 +23,7 @@ Buffer::Buffer(const uint32_t rows, const uint32_t cols, const uint8_t depth)
     : m_rows(rows)
     , m_cols(cols)
     , m_depth(depth)
-    , m_data(new double[m_rows * m_cols * m_depth])
+    , m_data(new float[m_rows * m_cols * m_depth])
 {
     // Zero the array on initialization
     std::fill(m_data.get(), m_data.get() + (m_rows * m_cols * m_depth), 0.0);
@@ -62,13 +62,13 @@ Buffer & Buffer::operator=(const Buffer & other)
 }
 
 
-std::shared_ptr<double> Buffer::data()
+std::shared_ptr<float> Buffer::data()
 {
     return m_data;
 }
 
 
-double & Buffer::at(const uint32_t row, const uint32_t col, uint8_t depth)
+float & Buffer::at(const uint32_t row, const uint32_t col, uint8_t depth)
 {
     if (row >= m_rows || col >= m_cols) {
         std::stringstream msg;

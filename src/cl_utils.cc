@@ -9,6 +9,7 @@
 
 // Standard imports
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -101,8 +102,8 @@ Kernel_Collection::Kernel_Collection(const cl::Context & ctx,
             m_program->getBuildInfo<std::string>(d, CL_PROGRAM_BUILD_LOG, &build_log);
 
             // Append meesage
-            msg << "Build Log: (" << device_name << ")" << std::endl;
-            msg << build_log << std::endl;
+            std::cerr << "Build Log: (" << device_name << ")" << std::endl;
+            std::cerr << build_log << std::endl;
         }
 
         throw std::runtime_error(msg.str());

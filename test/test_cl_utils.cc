@@ -9,6 +9,7 @@
 #include "clarity_config.h"
 
 // Standard imports
+#include <iostream>
 #include <map>
 #include <vector>
 
@@ -54,6 +55,32 @@ TEST(cl_utils, kernel_collection)
     std::string kernel_name;
     k.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
     ASSERT_NE(kernel_name.find("simple_kernel"), std::string::npos) << "get returned the wrong kernel";
+}
+
+
+TEST(cl_utils, kernel_compliation)
+{
+    std::vector<cl::Platform> platforms = find_supported_platforms();
+    std::vector<cl::Device> devices; 
+    platforms[0].getDevices(CL_DEVICE_TYPE_DEFAULT, &devices);
+
+    std::map<std::string, std::string> files { 
+        { "pix2cam", KERNEL_DIR + "/pix_2_cam_coords.cl" },
+        { "cam2world", KERNEL_DIR + "/cam_2_world_coords.cl" },
+        { "map_range", KERNEL_DIR + "/map_range.cl" }
+    };
+    
+    cl_int err;
+    cl::Context ctx(devices, nullptr, nullptr, nullptr, &err);
+
+    ASSERT_EQ(CL_SUCCESS, err) << "Failed to get context";
+
+    try {
+        Kernel_Collection kcollect(ctx, files);
+    } catch(const std::exception & e) {
+        std::cerr << e.what() << std::endl;
+        FAIL();
+    }
 }
 
 }

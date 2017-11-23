@@ -35,11 +35,6 @@ TEST(camera, construction)
     ASSERT_EQ(0.0, std::get<0>(pos));
     ASSERT_EQ(0.0, std::get<1>(pos));
     ASSERT_EQ(0.0, std::get<2>(pos));
-    
-    const auto & pv = cam.pointing_vector();
-    ASSERT_EQ(1.0, std::get<0>(pv));
-    ASSERT_EQ(0.0, std::get<1>(pv));
-    ASSERT_EQ(0.0, std::get<2>(pv));
 }
 
 
@@ -58,11 +53,6 @@ TEST(camera, assignment_and_copy)
         ASSERT_EQ(0.0, std::get<0>(pos));
         ASSERT_EQ(0.0, std::get<1>(pos));
         ASSERT_EQ(0.0, std::get<2>(pos));
-        
-        const auto & pv = cam2.pointing_vector();
-        ASSERT_EQ(1.0, std::get<0>(pv));
-        ASSERT_EQ(0.0, std::get<1>(pv));
-        ASSERT_EQ(0.0, std::get<2>(pv));
     }
 
     {
@@ -77,11 +67,6 @@ TEST(camera, assignment_and_copy)
         ASSERT_EQ(0.0, std::get<0>(pos));
         ASSERT_EQ(0.0, std::get<1>(pos));
         ASSERT_EQ(0.0, std::get<2>(pos));
-        
-        const auto & pv = cam3.pointing_vector();
-        ASSERT_EQ(1.0, std::get<0>(pv));
-        ASSERT_EQ(0.0, std::get<1>(pv));
-        ASSERT_EQ(0.0, std::get<2>(pv));
     }
 }
 

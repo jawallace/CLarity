@@ -24,7 +24,8 @@ Camera::Camera(const float field_of_view_rad,
     : m_field_of_view_rad(field_of_view_rad)
     , m_focal_plane_size_pixels(rows, cols)
     , m_position(0., 0., 0.)
-    , m_pointing_vector(1., 0., 0.)
+    , m_pitch_rad(0)
+    , m_yaw_rad(0)
 {
     // No-op
 }
@@ -40,7 +41,8 @@ Camera::Camera(const Camera & other)
     : m_field_of_view_rad(other.m_field_of_view_rad)
     , m_focal_plane_size_pixels(other.m_focal_plane_size_pixels)
     , m_position(other.m_position)
-    , m_pointing_vector(other.m_pointing_vector)
+    , m_pitch_rad(other.m_pitch_rad)
+    , m_yaw_rad(other.m_yaw_rad)
 {
     // No-op 
 }
@@ -55,7 +57,8 @@ Camera & Camera::operator=(const Camera & other)
     m_field_of_view_rad = other.m_field_of_view_rad;
     m_focal_plane_size_pixels = other.m_focal_plane_size_pixels;
     m_position = other.m_position;
-    m_pointing_vector = other.m_pointing_vector;
+    m_yaw_rad = other.m_yaw_rad;
+    m_pitch_rad = other.m_pitch_rad;
 
     return *this;
 }
@@ -98,15 +101,48 @@ void Camera::set_position(const Camera::Position & pos)
 }
 
 
-const Camera::Pointing_Vector & Camera::pointing_vector() const
+float Camera::yaw() const
 {
-    return m_pointing_vector;
+    return m_yaw_rad;
 }
 
 
-void Camera::set_pointing_vector(const Camera::Pointing_Vector & pv)
+void Camera::set_yaw(const float yaw)
 {
-    m_pointing_vector = pv;
+    m_yaw_rad = yaw;
+}
+
+
+float Camera::pitch() const
+{
+    return m_pitch_rad;
+}
+
+
+void Camera::set_pitch(const float pitch)
+{
+    m_pitch_rad = pitch;
+}
+
+
+void Camera::get_rotation_matrix(std::shared_ptr<float> rot_buffer) const 
+{
+    const float alpha = m_yaw_rad;
+    const float gamma = m_pitch_rad;
+
+    float * rot = rot_buffer.get();
+
+    rot[0] = std::cos(alpha);
+    rot[1] = - std::sin(alpha);
+    rot[2] = 0.f;
+    
+    rot[3] = std::sin(alpha) * std::cos(gamma);
+    rot[4] = std::cos(alpha) * std::cos(gamma);
+    rot[5] = 0.f;
+    
+    rot[6] = std::sin(alpha) * std::sin(gamma);
+    rot[7] = std::cos(alpha) * std::sin(gamma);
+    rot[8] = std::cos(gamma);
 }
 
 

@@ -123,6 +123,9 @@ private:
     //! The kernels for the range calculation
     std::unique_ptr<Kernel_Collection> m_kernels;
 
+    //! rotation matrix
+    std::unique_ptr<Device_Buffer> m_rot;
+
     //! The index of the device to use in m_devices
     uint8_t m_device_idx;
 };

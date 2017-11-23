@@ -9,7 +9,9 @@
 // CLarity Imports
 
 // Standard Imports
+#include <array>
 #include <cstdint>
+#include <memory>
 #include <tuple>
 #include <utility>
 
@@ -38,10 +40,6 @@ public:
 
     //! @brief  Defintion of a position type for convenience
     typedef std::tuple<float, float, float> Position;
-
-
-    //! @brief  Defintion of a poiting vector type for convenience
-    typedef std::tuple<float, float, float> Pointing_Vector;
 
 
     //! @brief Constructor for a model of a camera
@@ -94,14 +92,25 @@ public:
     void set_position(const Position & p);
 
 
-    //! @brief Get the current pointing vector of the Camera, in world coordinates
-    const Pointing_Vector & pointing_vector() const;
+    //! @brief Get the current yaw of the Camera
+    float yaw() const;
+   
+
+    //! @brief Set the current yaw of the Camera, relative to the +y axis
+    void set_yaw(const float yaw);
+   
+
+    //! @brief Get the current pitch of the Camera, relative to the +x axis
+    float pitch() const;
+   
+
+    //! @brief Set the current pitch of the Camera, relative to the +x axis
+    void set_pitch(const float pitch);
 
 
-    //! @brief Set the current pointing vector of the Camera
-    //!
-    //! @param[in]  p   The new pointing vector of the Camera
-    void set_pointing_vector(const Pointing_Vector & p);
+    //! @brief  Populate the given matrix with the rotation matrix for this
+    //!         Camera
+    void get_rotation_matrix(std::shared_ptr<float> rot_buffer) const;
 
 private:
 
@@ -114,8 +123,11 @@ private:
     //! The position of the Camera, in world coordinates
     Position m_position;
 
-    //! The pointing vector of the Camera, in world coordinates
-    Pointing_Vector m_pointing_vector;
+    //! Get the pitch of the camera, in radians
+    float m_pitch_rad;
+
+    //! Get the yaw of the camera, in radians
+    float m_yaw_rad; 
 };
 
 }

@@ -74,6 +74,7 @@ CL_Range_Calculator::CL_Range_Calculator()
     , m_camera_coords()
     , m_world_coords()
     , m_kernels()
+    , m_rot()
     , m_device_idx(0)
 {
     // Select a platform
@@ -108,6 +109,7 @@ CL_Range_Calculator::CL_Range_Calculator()
         throw std::runtime_error(msg.str());
     }
 
+    m_rot = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, 3, 3, 1, true));
    
     // Create a queue for each device
     for (const auto & d : m_devices) {
@@ -137,6 +139,7 @@ CL_Range_Calculator::CL_Range_Calculator(const std::shared_ptr<cl::Context> ctx)
     , m_camera_coords()
     , m_world_coords()
     , m_kernels()
+    , m_rot(new Device_Buffer(*m_ctx, 3, 3, 1, true))
     , m_device_idx(0)
 {
     // Get the devices for the context
@@ -261,11 +264,12 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
     const cl::CommandQueue & queue = m_device_queues[m_device_idx];
     cl::Kernel & kernel = m_kernels->get("cam2world");
 
-    // TODO compute rotation matrix
+    cam.get_rotation_matrix(m_rot->data());
+
     const Device_Buffer & cam_coords_db = dynamic_cast<const Device_Buffer &>(cam_coords);
     Device_Buffer & world_coords_db = dynamic_cast<Device_Buffer &>(world_coords);
     kernel.setArg(0, cam_coords_db.get_cl_buffer());
-    kernel.setArg(1, cl::Buffer());
+    kernel.setArg(1, m_rot->get_cl_buffer());
     kernel.setArg(2, cols);
     kernel.setArg(3, world_coords_db);
 

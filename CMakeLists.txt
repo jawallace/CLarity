@@ -20,6 +20,7 @@ target_compile_options(clarity PUBLIC "-std=c++14" "-Werror" "-Wall" "-Wextra" "
 target_link_libraries(clarity ${OpenCL_LIBRARY})
 
 option(BUILD_UNITTESTS "Builds the unitests for clarity" ON)
+option(BUILD_DEMO "Builds the demo for CLarity" ON)
 
 if(BUILD_UNITTESTS)
     enable_testing()
@@ -32,3 +33,6 @@ if(BUILD_UNITTESTS)
     add_test(NAME CLarity_Tests COMMAND clarity_test_suite)
 endif()
 
+if(BUILD_DEMO)
+    add_subdirectory(demo)
+endif()

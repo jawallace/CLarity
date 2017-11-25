@@ -32,6 +32,97 @@ Diamond_Square_Generator::~Diamond_Square_Generator()
 }
 
 
+void _process_squares(const uint32_t rows, 
+                      const uint32_t cols, 
+                      const uint32_t size, 
+                      const uint32_t half, 
+                      std::mt19937 & gen, 
+                      std::uniform_real_distribution<> & rng, 
+                      Buffer & tbuffer)
+{
+    for (uint32_t r = half; r < rows; r += size) {
+        for (uint32_t c = half; c < cols; c += size) {
+            const bool lower_row_valid = r <= half;
+            const bool upper_row_valid = (r + half) < rows;
+            
+            const bool lower_col_valid = c <= half;
+            const bool upper_col_valid = (c + half) < cols;
+
+            float sum = 0.0f;
+            int valid_ct = 0;
+
+            if (lower_row_valid && lower_col_valid) {
+                sum += tbuffer.at(r - half, c - half);
+                valid_ct++;
+            }
+
+            if (lower_row_valid && upper_col_valid) {
+                sum += tbuffer.at(r - half, c + half);
+            }
+            
+            if (upper_row_valid && lower_col_valid) {
+                sum += tbuffer.at(r + half, c - half);
+                valid_ct++;
+            }
+
+            if (upper_row_valid && upper_col_valid) {
+                sum += tbuffer.at(r + half, c + half);
+            }
+            
+            const float offset = rng(gen);
+            tbuffer.at(r, c) = (sum / valid_ct) + offset;
+        }
+    }
+}
+
+
+void _process_diamonds(const uint32_t rows, 
+                       const uint32_t cols, 
+                       const uint32_t size, 
+                       const uint32_t half, 
+                       std::mt19937 & gen, 
+                       std::uniform_real_distribution<> & rng, 
+                       Buffer & tbuffer)
+{
+    for (uint32_t r = 0; r < rows; r += half) {
+        uint32_t start_col = (r + half) % size;
+        for (uint32_t c = start_col; c < cols; c += size) {
+            const bool lower_row_valid = r <= half;
+            const bool upper_row_valid = (r + half) < rows;
+            
+            const bool lower_col_valid = c <= half;
+            const bool upper_col_valid = (c + half) < cols;
+
+            float sum = 0.0f;
+            int valid_ct = 0;
+           
+            if (lower_col_valid) {
+                sum += tbuffer.at(r, c - half);
+                valid_ct++;
+            }
+            
+            if (upper_row_valid) {
+                sum += tbuffer.at(r + half, c);
+                valid_ct++;
+            }
+            
+            if (upper_col_valid) {
+                sum += tbuffer.at(r, c + half);
+                valid_ct++;
+            }
+            
+            if (lower_row_valid) {
+                sum += tbuffer.at(r - half, c);
+                valid_ct++;
+            }
+
+            const float offset = rng(gen);
+            tbuffer.at(r, c) = (sum / valid_ct) + offset;
+        }
+    }
+}
+
+
 Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows, 
                                                    const uint32_t cols, 
                                                    const float scale, 
@@ -63,28 +154,10 @@ Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows,
         auto rng = std::uniform_real_distribution<>(-feature_scale, feature_scale);
 
         // Process squares
-        for (uint32_t r = half; r < rows; r += size) {
-            for (uint32_t c = half; c < cols; c += size) {
-                const float offset = rng(gen);
-                
-                const float sum = tbuffer.at(r - half, c - half) + tbuffer.at(r - half, c + half) +
-                                  tbuffer.at(r + half, c - half) + tbuffer.at(r + half, c + half);
+        _process_squares(rows, cols, size, half, gen, rng, tbuffer);
 
-                tbuffer.at(r, c) = (sum / 4) + offset;
-            }
-        }
-   
         // Process diamonds
-        for (uint32_t r = 0; r < rows; r += half) {
-            for (uint32_t c = 0; c < cols; c += half) {
-                const float offset = rng(gen);
-                
-                const float sum = tbuffer.at(r, c - size) + tbuffer.at(r + size, c) + 
-                                  tbuffer.at(r, c + size) + tbuffer.at(r - size, c);
-
-                tbuffer.at(r, c) = (sum / 4) + offset;
-            }
-        }
+        _process_diamonds(rows, cols, size, half, gen, rng, tbuffer);
         
         size = size / 2;
         half = size / 2;

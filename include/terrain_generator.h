@@ -8,8 +8,10 @@
 #pragma once
 
 // CLarity Imports
+#include "terrain.h"
 
 // Standard Imports
+#include <cstdint>
 
 // Third-Party Imports
 

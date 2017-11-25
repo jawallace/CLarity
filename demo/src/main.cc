@@ -4,8 +4,8 @@
 //! @author     Jeffrey Wallace
 //! @copyright  MIT
 
-
 // CLarity Imports
+#include "terrain_viewer.h"
 
 // Standard Imports
 
@@ -15,6 +15,8 @@
 #include <QTextStream>
 #include <QWidget>
 
+
+namespace cd = clarity::demo;
 
 int main(int argc, char ** argv)
 {
@@ -30,10 +32,9 @@ int main(int argc, char ** argv)
 		app.setStyleSheet(ts.readAll());
 	} 
 
-    QWidget widget;
-    widget.resize(300, 200);
-    widget.setWindowTitle("CLarity Demo");
-    widget.show();
+    cd::Terrain_Viewer viewer;
+    viewer.setWindowTitle("CLarity Demo");
+    viewer.show();
 
 
     return app.exec();

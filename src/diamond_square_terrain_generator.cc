@@ -58,6 +58,7 @@ void _process_squares(const uint32_t rows,
 
             if (lower_row_valid && upper_col_valid) {
                 sum += tbuffer.at(r - half, c + half);
+                valid_ct++;
             }
             
             if (upper_row_valid && lower_col_valid) {
@@ -67,6 +68,7 @@ void _process_squares(const uint32_t rows,
 
             if (upper_row_valid && upper_col_valid) {
                 sum += tbuffer.at(r + half, c + half);
+                valid_ct++;
             }
             
             const float offset = rng(gen);

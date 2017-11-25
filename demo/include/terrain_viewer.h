@@ -36,6 +36,7 @@ private slots:
     void on_generate();
 
 private:
+    Terrain m_terrain;
     std::unique_ptr<Terrain_Generator> m_generator;
 
     QLabel m_img_lbl;

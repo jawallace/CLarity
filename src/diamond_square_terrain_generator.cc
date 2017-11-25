@@ -42,10 +42,10 @@ void _process_squares(const uint32_t rows,
 {
     for (uint32_t r = half; r < rows; r += size) {
         for (uint32_t c = half; c < cols; c += size) {
-            const bool lower_row_valid = r <= half;
+            const bool lower_row_valid = r >= half;
             const bool upper_row_valid = (r + half) < rows;
             
-            const bool lower_col_valid = c <= half;
+            const bool lower_col_valid = c >= half;
             const bool upper_col_valid = (c + half) < cols;
 
             float sum = 0.0f;
@@ -87,10 +87,10 @@ void _process_diamonds(const uint32_t rows,
     for (uint32_t r = 0; r < rows; r += half) {
         uint32_t start_col = (r + half) % size;
         for (uint32_t c = start_col; c < cols; c += size) {
-            const bool lower_row_valid = r <= half;
+            const bool lower_row_valid = r >= half;
             const bool upper_row_valid = (r + half) < rows;
             
-            const bool lower_col_valid = c <= half;
+            const bool lower_col_valid = c >= half;
             const bool upper_col_valid = (c + half) < cols;
 
             float sum = 0.0f;
@@ -142,8 +142,8 @@ Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows,
     tbuffer.at(rows - 1, cols - 1) = Diamond_Square_Generator::MAX_HEIGHT_M / 2;
 
     // Generate the tbuffer
-    uint32_t size = rows;
-    uint32_t half = rows / 2;
+    uint32_t size = (rows - 1);
+    uint32_t half = size / 2;
 
     std::random_device rd;
     std::mt19937 gen(rd());

@@ -27,7 +27,7 @@ namespace clarity
 //!         GPU-accelereated)
 class Range_Calculator
 {
-
+public:
     //! @brief      Compute the range image from the given Camera and Terrain
     //!
     //! @detail     This is a convenience function that, at it's simplest, calls the other methods

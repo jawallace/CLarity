@@ -7,45 +7,45 @@
 #pragma once
 
 // CLarity Imports
+#include "buffer.h"
+#include "camera.h"
+#include "range_calculator.h"
 #include "terrain.h"
-#include "terrain_generator.h"
 
 // Standard Imports
 #include <memory>
 
 // Third-Party Imports
 #include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
 #include <QSlider>
 #include <QWidget>
-
 
 namespace clarity {
 namespace demo {
 
-
-class Terrain_Viewer : public QWidget
+class Range_Viewer : public QWidget
 {
 private:
     Q_OBJECT
 
 public:
-    Terrain_Viewer(QWidget * parent = nullptr);
+    Range_Viewer(QWidget * parent = nullptr);
 
 private slots:
-    void on_generate();
+    void on_display();
+    void on_update_terrain(Terrain & terrain);
+    void on_update_camera();
 
 private:
+    Camera m_cam;
     Terrain m_terrain;
-    std::unique_ptr<Terrain_Generator> m_generator;
+    Buffer m_range;
+    std::unique_ptr<Range_Calculator> m_calculator;
 
     QLabel m_img_lbl;
-    QLineEdit m_scale_box;
-    QSlider m_detail_slider;
-    QSlider m_roughness_slider;
-    QPushButton m_generate_btn;
+    QSlider m_yaw_slider;
+    QSlider m_pitch_slider;
+    QSlider m_roll_slider;
 };
-
 
 }}

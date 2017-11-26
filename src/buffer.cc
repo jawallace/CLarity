@@ -81,6 +81,19 @@ float & Buffer::at(const uint32_t row, const uint32_t col, uint8_t depth)
 }
 
 
+const float & Buffer::at(const uint32_t row, const uint32_t col, uint8_t depth) const
+{
+    if (row >= m_rows || col >= m_cols) {
+        std::stringstream msg;
+        msg << "(" << row << ", " << col << ") out of range for Buffer with size ";
+        msg << "(" << m_rows << ", " << m_cols << ")";
+        throw std::out_of_range(msg.str());
+    }
+
+    return *(m_data.get() + (row * m_cols + col * m_depth + depth));
+}
+
+
 std::pair<uint32_t, uint32_t> Buffer::size() const
 {
     return std::make_pair(m_rows, m_cols);

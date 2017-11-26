@@ -29,7 +29,7 @@ namespace clarity
 //!         range calculation.
 class CL_Range_Calculator : public Range_Calculator
 {
-
+public:
     //! @brief  Default constructor.
     //!
     //! @detail Selects first platform/context and a single device for computation.

@@ -54,6 +54,10 @@ public:
 
     //! @brief      Get a handle to the element at the given row and column
     float & at(const uint32_t row, const uint32_t col, const uint8_t depth = 0);
+   
+
+    //! @brief      Get a handle to the element at the given row and column
+    const float & at(const uint32_t row, const uint32_t col, const uint8_t depth = 0) const;
 
 
     //! @brief      Get the size of the Buffer, in cells

@@ -9,6 +9,7 @@
 #include "terrain.h"
 #include "terrain_generator.h"
 #include "terrain_viewer.h"
+#include "qt_util.h"
 
 // Standard Imports
 #include <cmath>
@@ -55,7 +56,7 @@ namespace demo {
 Terrain_Viewer::Terrain_Viewer(QWidget * parent)
     : QWidget(parent)
     , m_terrain(512, 512, 25.)
-    , m_generator(new Diamond_Square_Generator())
+    , m_generator(new Diamond_Square_Generator)
     , m_img_lbl(this)
     , m_scale_box(this)
     , m_detail_slider(Qt::Horizontal, this)
@@ -140,46 +141,7 @@ void Terrain_Viewer::on_generate()
     ////////////////////////////////////////////////////////////////////////////////// 
     //// Convert to a grayscale image
     ////////////////////////////////////////////////////////////////////////////////// 
-    float max = std::numeric_limits<float>::min();
-    float min = std::numeric_limits<float>::max();
-    // Find max and min values in the terrain map
-    for (uint32_t r = 0; r < size; r++) {
-        for (uint32_t c = 0; c < size; c++) {
-            const float val = m_terrain.data().at(r, c);
-            
-            if (val > max) {
-                max = val;
-            }
-
-            if (val < min) {
-                min = val;
-            }
-        }
-    }
-
-    QByteArray grayscale(size * size * 4, 255);
-    for (uint32_t r = 0; r < size; r++) {
-        for (uint32_t c = 0; c < size; c++) {
-            const uint32_t offset = (r * size * 4) + (c * 4);
-
-            const float val = m_terrain.data().at(r, c);
-            const uint8_t gray = static_cast<uint8_t>(255.f * (val - min) / (max - min));
-
-            grayscale[offset + 0] = gray; // R
-            grayscale[offset + 1] = gray; // G
-            grayscale[offset + 2] = gray; // B
-            // Alpha set by byte array constructor
-        }
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////// 
-    //// Display the grayscale image
-    ////////////////////////////////////////////////////////////////////////////////// 
-    QImage img(reinterpret_cast<const unsigned char *>(grayscale.constData()), 
-               size, 
-               size, 
-               QImage::Format_RGBA8888);
-    m_img_lbl.setPixmap(QPixmap::fromImage(img).scaled(_VIEW_SIZE, _VIEW_SIZE));
+    display_grayscale_buffer(m_terrain.data(), m_img_lbl, _VIEW_SIZE, _VIEW_SIZE);
 }
 
 }}

@@ -7,8 +7,8 @@
 #pragma once
 
 // CLarity Imports
-#include "buffer.h"
 #include "camera.h"
+#include "device_buffer.h"
 #include "range_calculator.h"
 #include "terrain.h"
 
@@ -16,6 +16,7 @@
 #include <memory>
 
 // Third-Party Imports
+#include <cl.hpp>
 #include <QLabel>
 #include <QSlider>
 #include <QWidget>
@@ -29,7 +30,7 @@ private:
     Q_OBJECT
 
 public:
-    Range_Viewer(QWidget * parent = nullptr);
+    Range_Viewer(std::shared_ptr<cl::Context> ctx, QWidget * parent = nullptr);
 
 private slots:
     void on_display();
@@ -37,9 +38,10 @@ private slots:
     void on_update_camera();
 
 private:
+    std::shared_ptr<cl::Context> m_ctx;
     Camera m_cam;
     Terrain m_terrain;
-    Buffer m_range;
+    Device_Buffer m_range;
     std::unique_ptr<Range_Calculator> m_calculator;
 
     QLabel m_img_lbl;

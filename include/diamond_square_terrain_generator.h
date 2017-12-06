@@ -8,6 +8,7 @@
 #pragma once
 
 // CLarity Imports
+#include "buffer.h"
 #include "terrain.h"
 #include "terrain_generator.h"
 
@@ -36,6 +37,10 @@ public:
 
     Terrain generate_terrain(const uint32_t rows, 
                              const uint32_t cols, 
+                             const float scale, 
+                             const float roughness);
+    
+    Terrain generate_terrain(std::shared_ptr<Buffer> buffer, 
                              const float scale, 
                              const float roughness);
 

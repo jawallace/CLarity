@@ -51,6 +51,45 @@ std::vector<cl::Platform> find_supported_platforms()
 }
 
 
+std::shared_ptr<cl::Context> get_context()
+{
+    // Select a platform
+    std::vector<cl::Platform> platforms = find_supported_platforms();
+
+    if (platforms.size() == 0) {
+        throw std::runtime_error("No OpenCL platforms are available.");
+    }
+
+    const cl::Platform & p = platforms[0];
+    
+    // Get the devices for the platform
+    cl_int err = CL_SUCCESS;
+    std::vector<cl::Device> devices;
+    err = p.getDevices(CL_DEVICE_TYPE_ALL, &devices);
+    
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to get devices from the default platform (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
+
+    // Create a context
+    std::shared_ptr<cl::Context> ctx(new cl::Context(devices, 
+                                                     nullptr, 
+                                                     nullptr, 
+                                                     nullptr, 
+                                                     &err));
+
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to get create context from the default platform (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
+
+    return ctx;
+}
+
+
 //! @brief  Utility to read the entirety of a file
 static std::string _read_source(const std::string & path)
 {

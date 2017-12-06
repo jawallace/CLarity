@@ -18,6 +18,7 @@
 // Standard Imports
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -77,37 +78,10 @@ CL_Range_Calculator::CL_Range_Calculator()
     , m_rot()
     , m_device_idx(0)
 {
-    // Select a platform
-    std::vector<cl::Platform> platforms = find_supported_platforms();
+    cl_int err;
 
-    if (platforms.size() == 0) {
-        throw std::runtime_error("No OpenCL platforms are available.");
-    }
-
-    const cl::Platform & p = platforms[0];
-    
-    // Get the devices for the platform
-    cl_int err = CL_SUCCESS;
-    err = p.getDevices(CL_DEVICE_TYPE_ALL, &m_devices);
-    
-    if (err != CL_SUCCESS) {
-        std::stringstream msg;
-        msg << "Failed to get devices from the default platform (cl error = " << err << ")";
-        throw std::runtime_error(msg.str());
-    }
-
-    // Create a context
-    m_ctx = std::shared_ptr<cl::Context>(new cl::Context(m_devices, 
-                                                         nullptr, 
-                                                         nullptr, 
-                                                         nullptr, 
-                                                         &err));
-
-    if (err != CL_SUCCESS) {
-        std::stringstream msg;
-        msg << "Failed to get create context from the default platform (cl error = " << err << ")";
-        throw std::runtime_error(msg.str());
-    }
+    m_ctx = get_context();
+    m_ctx->getInfo(CL_CONTEXT_DEVICES, &m_devices);
 
     m_rot = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, 3, 3, 1, true));
    
@@ -173,6 +147,7 @@ CL_Range_Calculator::~CL_Range_Calculator()
 
 void CL_Range_Calculator::Calculate(const Camera & cam, const Terrain & t, Buffer & rng)
 {
+    std::cerr << "Start" << std::endl;
     const auto & fp_size = cam.focal_plane_dimensions();
     const auto rows = std::get<0>(fp_size);
     const auto cols = std::get<1>(fp_size);
@@ -191,7 +166,8 @@ void CL_Range_Calculator::Calculate(const Camera & cam, const Terrain & t, Buffe
 
     run_cam2world(cam, *m_camera_coords, *m_world_coords, false);
 
-    run_map_range(cam, t, *m_world_coords, rng, false);
+    run_map_range(cam, t, *m_world_coords, rng, true);
+    std::cerr << "Done" << std::endl;
 }
 
 
@@ -234,9 +210,11 @@ void CL_Range_Calculator::run_pix2cam(const Camera & cam, Buffer & cam_coords, c
         throw std::runtime_error(msg.str());
     }
 
+    queue.finish();
+
     if (copy) {
         // Copy from device to host
-        cam_coords_db.from_device();
+        cam_coords_db.from_device(&queue);
     }
 }
 
@@ -268,12 +246,12 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
 
     const Device_Buffer & cam_coords_db = dynamic_cast<const Device_Buffer &>(cam_coords);
     Device_Buffer & world_coords_db = dynamic_cast<Device_Buffer &>(world_coords);
-    kernel.setArg(0, cam_coords_db.get_cl_buffer());
-    kernel.setArg(1, m_rot->get_cl_buffer());
-    kernel.setArg(2, cols);
-    kernel.setArg(3, world_coords_db);
-
     cl_int err = CL_SUCCESS;
+    err = kernel.setArg(0, cam_coords_db.get_cl_buffer());
+    err = kernel.setArg(1, m_rot->get_cl_buffer());
+    err = kernel.setArg(2, cols);
+    err = kernel.setArg(3, world_coords_db.get_cl_buffer());
+
     err = queue.enqueueNDRangeKernel(kernel, 
                                      cl::NullRange, 
                                      cl::NDRange(rows, cols), 
@@ -284,10 +262,12 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
         msg << "Failed to enqueue cam2world kernel (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
+    
+    queue.finish();
 
     if (copy) {
         // Copy from device to host
-        world_coords_db.from_device();
+        world_coords_db.from_device(&queue);
     }
 }
 
@@ -332,7 +312,7 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
     kernel.setArg(1, world_coords_db.get_cl_buffer());
     kernel.setArg(2, terrain_db.get_cl_buffer());
     kernel.setArg(3, t.scale());
-    kernel.setArg(4, t.scale() * std::sqrt(3.0f));
+    kernel.setArg(4, t.scale() * std::get<0>(terrain_size) * std::sqrt(3.0f));
     kernel.setArg(5, t.scale() / 2.0f);
     kernel.setArg(6, bounds);
     kernel.setArg(7, range_db.get_cl_buffer());
@@ -348,10 +328,12 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
         msg << "Failed to enqueue map_rng kernel (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
+    
+    queue.finish();
 
     if (copy) {
         // Copy from device to host
-        range_db.from_device();
+        range_db.from_device(&queue);
     }
 }
 

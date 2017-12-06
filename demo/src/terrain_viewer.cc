@@ -5,6 +5,7 @@
 //! @copyright  MIT
 
 // CLarity Imports
+#include "device_buffer.h"
 #include "diamond_square_terrain_generator.h"
 #include "terrain.h"
 #include "terrain_generator.h"
@@ -15,6 +16,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <memory>
 
 // Third-Party Imports
 #include <QByteArray>
@@ -53,8 +55,9 @@ static const QString _ROUGHNESS_TOOLTIP =
 namespace clarity {
 namespace demo {
 
-Terrain_Viewer::Terrain_Viewer(QWidget * parent)
+Terrain_Viewer::Terrain_Viewer(std::shared_ptr<cl::Context> ctx, QWidget * parent)
     : QWidget(parent)
+    , m_ctx(ctx)
     , m_terrain(512, 512, 25.)
     , m_generator(new Diamond_Square_Generator)
     , m_img_lbl(this)
@@ -134,9 +137,10 @@ void Terrain_Viewer::on_generate()
     //// Generate the terrain
     ////////////////////////////////////////////////////////////////////////////////// 
     const uint32_t size = std::pow(2, m_detail_slider.value()) + 1;
+    std::shared_ptr<Buffer> tbuffer(new Device_Buffer(*m_ctx, size, size));
     const float roughness = m_roughness_slider.value() / static_cast<float>(_MAX_ROUGHNESS);
     const float scale = m_scale_box.text().toFloat();
-    m_terrain = m_generator->generate_terrain(size, size, scale, roughness);
+    m_terrain = m_generator->generate_terrain(tbuffer, scale, roughness);
 
     ////////////////////////////////////////////////////////////////////////////////// 
     //// Convert to a grayscale image

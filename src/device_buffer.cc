@@ -94,15 +94,17 @@ void Device_Buffer::from_device(const cl::CommandQueue * queue)
                        m_data.get(),  
                        m_data.get() + (m_rows * m_cols * m_depth));
     } else {
+        const auto start = m_data.get();
+        const auto end = m_data.get() + (m_rows * m_cols * m_depth);
         err = cl::copy(*queue,
                        m_cl_buffer, 
-                       m_data.get(),  
-                       m_data.get() + (m_rows * m_cols * m_depth));
+                       start,
+                       end);
     }
 
     if (err != CL_SUCCESS) {
         std::stringstream msg;
-        msg << "Failed to get buffer to device (cl error = " << err << ")";
+        msg << "Failed to get buffer from device (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
 }

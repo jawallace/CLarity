@@ -6,11 +6,14 @@
 //! @copyright  MIT
 
 // CLarity Imports
+#include "buffer.h"
+#include "device_buffer.h"
 #include "diamond_square_terrain_generator.h"
 #include "terrain.h"
 #include "terrain_generator.h"
 
 // Standard Imports
+#include <memory>
 #include <random>
 #include <stdexcept>
 
@@ -125,17 +128,15 @@ void _process_diamonds(const uint32_t rows,
 }
 
 
-Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows, 
-                                                   const uint32_t cols, 
+Terrain Diamond_Square_Generator::generate_terrain(std::shared_ptr<Buffer> buffer,
                                                    const float scale, 
                                                    const float roughness)
 {
-    if (rows != cols) {
-        throw std::invalid_argument("Diamond-Square Generator requires that rows == cols");
-    }
-
-    Terrain terrain(rows, cols, scale);
+    Terrain terrain(buffer, scale);
     Buffer & tbuffer = terrain.data();
+
+    uint32_t rows = std::get<0>(tbuffer.size());
+    uint32_t cols = std::get<1>(tbuffer.size());
 
     // Initialize corners 
     tbuffer.at(0, 0) = Diamond_Square_Generator::MAX_HEIGHT_M / 2; 
@@ -166,6 +167,20 @@ Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows,
     }
 
     return terrain;
+}
+
+
+Terrain Diamond_Square_Generator::generate_terrain(const uint32_t rows, 
+                                                   const uint32_t cols, 
+                                                   const float scale, 
+                                                   const float roughness)
+{
+    if (rows != cols) {
+        throw std::invalid_argument("Diamond-Square Generator requires that rows == cols");
+    }
+
+    std::shared_ptr<Buffer> buffer(new Buffer(rows, cols));
+    return generate_terrain(buffer, scale, roughness);
 }
 
 }

@@ -35,6 +35,9 @@ enum Execution_Target
 std::vector<cl::Platform> find_supported_platforms();
 
 
+//! @brief      Get the first context
+std::shared_ptr<cl::Context> get_context();
+
 
 //! @brief      Simple wrapper around cl::Program to manage construction of program and retrieve
 //!             kernels.

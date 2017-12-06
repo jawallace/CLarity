@@ -36,6 +36,17 @@ public:
                                      const uint32_t cols, 
                                      const float scale, 
                                      const float roughness) = 0;
+   
+
+    //! @brief  Generate a Terrain map with the given size, scale, and roughness
+    //!
+    //! @param[in] rows         number of rows in the map
+    //! @param[in] cols         numer of columns in the map
+    //! @param[in] scale        scale of a cell, in meters per cell
+    //! @param[in] roughness    the roughness of the generated terrain, in range [0, 1)
+    virtual Terrain generate_terrain(std::shared_ptr<Buffer> buffer,
+                                     const float scale, 
+                                     const float roughness) = 0;
 
 };
 

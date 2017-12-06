@@ -7,12 +7,14 @@
 // CLarity Imports
 #include "camera.h"
 #include "cl_range_calculator.h"
+#include "device_buffer.h"
 #include "terrain.h"
 #include "range_viewer.h"
 #include "qt_util.h"
 
 // Standard Imports
 #include <cmath>
+#include <iostream>
 #include <memory>
 #include <tuple>
 
@@ -48,17 +50,22 @@ static constexpr int16_t _MAX_ROLL = 180;
 static const QString _ROLL_TOOLTIP = "The roll of the Camera";
 
 
-Range_Viewer::Range_Viewer(QWidget * parent)
+Range_Viewer::Range_Viewer(std::shared_ptr<cl::Context> ctx, QWidget * parent)
     : QWidget(parent)
+    , m_ctx(ctx)
     , m_cam(_DEFAULT_CAM_FOV, _DEFAULT_CAM_X_DIM, _DEFAULT_CAM_Y_DIM)
     , m_terrain(512, 512, 25.0)
-    , m_range(_DEFAULT_CAM_X_DIM, _DEFAULT_CAM_Y_DIM)
-    , m_calculator(new CL_Range_Calculator)
+    , m_range(*m_ctx, _DEFAULT_CAM_X_DIM, _DEFAULT_CAM_Y_DIM)
+    , m_calculator(new CL_Range_Calculator(m_ctx))
     , m_img_lbl(this)
     , m_yaw_slider(Qt::Horizontal, this)
     , m_pitch_slider(Qt::Horizontal, this)
     , m_roll_slider(Qt::Horizontal, this)
 {
+    // Terrain
+    std::shared_ptr<Buffer> tbuffer(new Device_Buffer(*m_ctx, 512, 512));
+    m_terrain = Terrain(tbuffer, 25.0);
+
     // Camera Position
     m_cam.set_position(std::make_tuple(256 * 25., 256 * 25., 500 * 25.));
     // Initialize Image Label
@@ -131,6 +138,7 @@ Range_Viewer::Range_Viewer(QWidget * parent)
 
 void Range_Viewer::on_display()
 {
+    std::cerr << "on display" << std::endl;
     m_calculator->Calculate(m_cam, m_terrain, m_range);
     const auto sz = m_cam.focal_plane_dimensions();
     display_grayscale_buffer(m_range, m_img_lbl, std::get<0>(sz), std::get<1>(sz));
@@ -146,10 +154,10 @@ void Range_Viewer::on_update_terrain(Terrain & terrain)
 
 void Range_Viewer::on_update_camera()
 {
-    const float yaw_rad = M_PI * static_cast<float>(m_yaw_slider.value() - 180) / 180.0f;
+    const float yaw_rad = M_PI * static_cast<float>(m_yaw_slider.value()) / 180.0f;
     m_cam.set_yaw(yaw_rad);
     
-    const float pitch_rad = M_PI * static_cast<float>(m_pitch_slider.value() - 180) / 180.0f;
+    const float pitch_rad = M_PI * static_cast<float>(m_pitch_slider.value()) / 180.0f;
     m_cam.set_pitch(pitch_rad);
    
     // Roll not yet implemented

@@ -25,7 +25,6 @@ __kernel void map_range(const float3 origin,
                         const int pitch,
                         __global float * range)
 {
-
     // Get location and corresponding input values
     const int2 pos = { get_global_id(0), get_global_id(1) };
     const int offset = pos.x * pitch + pos.y;

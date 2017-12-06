@@ -33,5 +33,5 @@ __kernel void pix2cam(const float3 boresight,
     float3 new_coord = float3(cos(ang), sin(ang) * cos(phi), sin(ang) * sin(phi));
 
     // Write out
-    cam_coords[get_global_id(0) * pitch + get_global_id(0)] = new_coord;
+    cam_coords[get_global_id(0) * pitch + get_global_id(1)] = new_coord;
 }

@@ -14,6 +14,7 @@
 #include <memory>
 
 // Third-Party Imports
+#include <cl.hpp>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -31,12 +32,13 @@ private:
     Q_OBJECT
 
 public:
-    Terrain_Viewer(QWidget * parent = nullptr);
+    Terrain_Viewer(std::shared_ptr<cl::Context> ctx, QWidget * parent = nullptr);
 
 private slots:
     void on_generate();
 
 private:
+    std::shared_ptr<cl::Context> m_ctx;
     Terrain m_terrain;
     std::unique_ptr<Terrain_Generator> m_generator;
 

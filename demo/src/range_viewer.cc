@@ -181,11 +181,6 @@ void Range_Viewer::on_display()
 {
     std::cerr << "on display" << std::endl;
     const auto sz = m_cam.focal_plane_dimensions();
-    for (auto i = 0; i < std::get<0>(sz); i++) {
-      for (auto j = 0; j < std::get<1>(sz); j++) {
-        m_range.at(i, j) = 0.0;
-      }
-    }
 
     try {
       m_calculator->Calculate(m_cam, m_terrain, m_range);
@@ -207,10 +202,11 @@ void Range_Viewer::on_update_camera()
 {
     const float yaw_rad = M_PI * static_cast<float>(m_yaw_slider.value()) / 180.0f;
     m_cam.set_yaw(yaw_rad);
-    
+    std::cerr << "Yaw = " << m_cam.yaw() << std::endl; 
     const float pitch_rad = M_PI * static_cast<float>(m_pitch_slider.value()) / 180.0f;
     m_cam.set_pitch(pitch_rad);
-   
+    std::cerr << "Pitch = " << m_cam.pitch() << std::endl; 
+
     // Roll not yet implemented
     //const float roll_rad = M_PI * static_cast<float>(m_roll_slider.value()) / 180.0f;
     //m_cam.set_roll(roll_rad);

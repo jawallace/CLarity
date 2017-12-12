@@ -113,7 +113,7 @@ CL_Range_Calculator::CL_Range_Calculator(const std::shared_ptr<cl::Context> ctx)
     , m_camera_coords()
     , m_world_coords()
     , m_kernels()
-    , m_rot(new Device_Buffer(*m_ctx, 3, 4, 1, true))
+    , m_rot(new Device_Buffer(*m_ctx, 3, 4, 1))
     , m_device_idx(0)
 {
     // Get the devices for the context
@@ -157,13 +157,13 @@ void CL_Range_Calculator::Calculate(const Camera & cam, const Terrain & t, Buffe
         m_camera_coords = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, rows, cols, 4));
     }
 
-    run_pix2cam(cam, *m_camera_coords, false);
+    run_pix2cam(cam, *m_camera_coords, true);
 
     if (m_world_coords == nullptr || _wrong_buffer_size(*m_world_coords, fp_size, 4)) {
         m_world_coords = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, rows, cols, 4));
     }
 
-    run_cam2world(cam, *m_camera_coords, *m_world_coords, false);
+    run_cam2world(cam, *m_camera_coords, *m_world_coords, true);
 
     run_map_range(cam, t, *m_world_coords, rng, true);
 }
@@ -255,7 +255,8 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
     const cl::CommandQueue & queue = m_device_queues[m_device_idx];
     cl::Kernel & kernel = m_kernels->get("cam2world");
 
-    cam.get_rotation_matrix(m_rot->data());
+    Device_Buffer rot(*m_ctx, 3, 4);
+    cam.get_rotation_matrix(rot.data());
 
     const Device_Buffer & cam_coords_db = dynamic_cast<const Device_Buffer &>(cam_coords);
     Device_Buffer & ucam_coords_db = const_cast<Device_Buffer &>(cam_coords_db);
@@ -267,7 +268,8 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
         msg << "Failed to set cam2world kernel arg 0 (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
-    err = kernel.setArg(1, m_rot->get_cl_buffer());
+    rot.to_device(&queue);
+    err = kernel.setArg(1, rot.get_cl_buffer());
     if (err != CL_SUCCESS) {
         std::stringstream msg;
         msg << "Failed to set cam2world kernel arg 1 (cl error = " << err << ")";
@@ -376,7 +378,7 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
       msg << "Failed to set kernel arg 4 for map_range (cl error = " << err << ")";
       throw std::runtime_error(msg.str());
     }
-    err = kernel.setArg(5, t.scale() / 2.0f);
+    err = kernel.setArg(5, t.scale() / 5.0f);
     if (err != CL_SUCCESS) {
       std::stringstream msg;
       msg << "Failed to set kernel arg 5 for map_range (cl error = " << err << ")";

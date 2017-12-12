@@ -132,7 +132,7 @@ Terrain_Viewer::Terrain_Viewer(std::shared_ptr<cl::Context> ctx, QWidget * paren
 void Terrain_Viewer::on_generate()
 {
     std::cerr << "Generate!" << std::endl;
-    
+
     ////////////////////////////////////////////////////////////////////////////////// 
     //// Generate the terrain
     ////////////////////////////////////////////////////////////////////////////////// 
@@ -146,6 +146,8 @@ void Terrain_Viewer::on_generate()
     //// Convert to a grayscale image
     ////////////////////////////////////////////////////////////////////////////////// 
     display_grayscale_buffer(m_terrain.data(), m_img_lbl, _VIEW_SIZE, _VIEW_SIZE);
+
+    emit generate(m_terrain);
 }
 
 }}

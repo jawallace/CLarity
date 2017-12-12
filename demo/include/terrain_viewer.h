@@ -37,6 +37,9 @@ public:
 private slots:
     void on_generate();
 
+signals:
+    void generate(Terrain & t);
+
 private:
     std::shared_ptr<cl::Context> m_ctx;
     Terrain m_terrain;

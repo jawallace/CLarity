@@ -11,6 +11,7 @@
 #include "device_buffer.h"
 #include "range_calculator.h"
 #include "terrain.h"
+#include "terrain_viewer.h"
 
 // Standard Imports
 #include <memory>
@@ -20,6 +21,8 @@
 #include <QLabel>
 #include <QSlider>
 #include <QWidget>
+#include <QObject>
+#include <QEvent>
 
 namespace clarity {
 namespace demo {
@@ -30,12 +33,17 @@ private:
     Q_OBJECT
 
 public:
-    Range_Viewer(std::shared_ptr<cl::Context> ctx, QWidget * parent = nullptr);
+    Range_Viewer(std::shared_ptr<cl::Context> ctx, 
+                 Terrain_Viewer & viewer,
+                 QWidget * parent = nullptr);
 
 private slots:
     void on_display();
-    void on_update_terrain(Terrain & terrain);
     void on_update_camera();
+    void on_update_terrain(Terrain & terrain);
+
+protected:
+    bool eventFilter(QObject * obj, QEvent * evt);
 
 private:
     std::shared_ptr<cl::Context> m_ctx;
@@ -45,6 +53,7 @@ private:
     std::unique_ptr<Range_Calculator> m_calculator;
 
     QLabel m_img_lbl;
+    QLabel m_rng_lbl;
     QSlider m_yaw_slider;
     QSlider m_pitch_slider;
     QSlider m_roll_slider;

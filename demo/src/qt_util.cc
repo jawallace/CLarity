@@ -36,7 +36,7 @@ void display_grayscale_buffer(const Buffer & b,
     for (uint32_t r = 0; r < rows; r++) {
         for (uint32_t c = 0; c < cols; c++) {
             const float val = b.at(r, c);
-            
+
             if (val > max) {
                 max = val;
             }
@@ -62,7 +62,7 @@ void display_grayscale_buffer(const Buffer & b,
             // Alpha set by byte array constructor
         }
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////////// 
     //// Display the grayscale image
     ////////////////////////////////////////////////////////////////////////////////// 

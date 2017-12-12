@@ -193,12 +193,27 @@ void CL_Range_Calculator::run_pix2cam(const Camera & cam, Buffer & cam_coords, c
     // Set up arguments
     const cl_float3 boresight {{ rows / 2.f, cols / 2.f, cam.focal_length() }};
     Device_Buffer & cam_coords_db = dynamic_cast<Device_Buffer &>(cam_coords);
-    
-    kernel.setArg(0, boresight);
-    kernel.setArg(1, cols);
-    kernel.setArg(2, cam_coords_db.get_cl_buffer());
-    
+
     cl_int err = CL_SUCCESS;
+    err |= kernel.setArg(0, boresight);
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set pix2cam kernel arg 0 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
+    err |= kernel.setArg(1, static_cast<int>(cols));
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set pix2cam kernel arg 1 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
+    err |= kernel.setArg(2, cam_coords_db.get_cl_buffer());
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set pix2cam kernel arg 2 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
+
     err = queue.enqueueNDRangeKernel(kernel, 
                                      cl::NullRange, 
                                      cl::NDRange(rows, cols), 
@@ -206,7 +221,7 @@ void CL_Range_Calculator::run_pix2cam(const Camera & cam, Buffer & cam_coords, c
 
     if (err != CL_SUCCESS) {
         std::stringstream msg;
-        msg << "Failed to enqueue cam2world kernel (cl error = " << err << ")";
+        msg << "Failed to enqueue pix2cam kernel (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
 
@@ -245,12 +260,33 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
     cam.get_rotation_matrix(m_rot->data());
 
     const Device_Buffer & cam_coords_db = dynamic_cast<const Device_Buffer &>(cam_coords);
+    Device_Buffer & ucam_coords_db = const_cast<Device_Buffer &>(cam_coords_db);
     Device_Buffer & world_coords_db = dynamic_cast<Device_Buffer &>(world_coords);
     cl_int err = CL_SUCCESS;
-    err = kernel.setArg(0, cam_coords_db.get_cl_buffer());
+    err = kernel.setArg(0, ucam_coords_db.get_cl_buffer());
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set cam2world kernel arg 0 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
     err = kernel.setArg(1, m_rot->get_cl_buffer());
-    err = kernel.setArg(2, cols);
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set cam2world kernel arg 1 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(2, static_cast<const int>(cols));
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set cam2world kernel arg 2 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
     err = kernel.setArg(3, world_coords_db.get_cl_buffer());
+    if (err != CL_SUCCESS) {
+        std::stringstream msg;
+        msg << "Failed to set cam2world kernel arg 3 (cl error = " << err << ")";
+        throw std::runtime_error(msg.str());
+    }
 
     err = queue.enqueueNDRangeKernel(kernel, 
                                      cl::NullRange, 

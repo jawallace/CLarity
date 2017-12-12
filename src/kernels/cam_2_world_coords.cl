@@ -10,8 +10,8 @@
 //! @param[in]  rotation        the rotation matrix for the Camera's orientation
 //! @param[in]  pitch           the pitch of the image
 //! @param[out] world_coords    the output buffer of world coordinates
-__kernel void cam2world(constant float3 * cam_coords, 
-                        constant float3 * rot_mat,
+__kernel void cam2world(__global float3 * cam_coords, 
+                        __global float3 * rot_mat,
                         const int pitch,
                         __global float3 * world_coords)
 {
@@ -20,9 +20,9 @@ __kernel void cam2world(constant float3 * cam_coords,
     const int offset = pos.x * pitch + pos.y;
     const float3 cam_coord = cam_coords[offset];
 
-    const float3 world_coord = float3(dot(rot_mat[0], cam_coord), 
-                                      dot(rot_mat[1], cam_coord), 
-                                      dot(rot_mat[2], cam_coord));
+    const float3 world_coord = { dot(rot_mat[0], cam_coord), 
+                                 dot(rot_mat[1], cam_coord), 
+                                 dot(rot_mat[2], cam_coord) };
 
 
     // Write out

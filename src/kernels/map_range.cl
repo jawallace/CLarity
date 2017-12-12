@@ -16,8 +16,8 @@
 //! @param[in]  pitch           the pitch of the image
 //! @param[out] range           the output buffer of range-per-pixel
 __kernel void map_range(const float3 origin,
-                        constant float3 * world_coords,
-                        constant float * height_map,
+                        __global float3 * world_coords,
+                        __global float * height_map,
                         const float scale,
                         const float max_range,
                         const float max_error,

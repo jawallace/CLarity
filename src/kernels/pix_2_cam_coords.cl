@@ -21,7 +21,7 @@ __kernel void pix2cam(const float3 boresight,
 
     // Get pixel vector relative to boresight
     float2 pixel2d = pos - boresight.xy;
-    const float3 pixel = float3(pixel2d.x, pixel2d.y, boresight.z);
+    const float3 pixel = { pixel2d.x, pixel2d.y, boresight.z };
 
     // compute angle between pixel and boresight
     const float ang = acos(dot(boresight, pixel)) / (length(pixel) * length(boresight));
@@ -30,7 +30,7 @@ __kernel void pix2cam(const float3 boresight,
     const float phi = atan2(pixel.x, pixel.y);
 
     // Compute camera coordinates
-    float3 new_coord = float3(cos(ang), sin(ang) * cos(phi), sin(ang) * sin(phi));
+    float3 new_coord = { cos(ang), sin(ang) * cos(phi), sin(ang) * sin(phi) };
 
     // Write out
     cam_coords[get_global_id(0) * pitch + get_global_id(1)] = new_coord;

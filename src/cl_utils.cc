@@ -8,6 +8,7 @@
 #include "cl_utils.h"
 
 // Standard imports
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>

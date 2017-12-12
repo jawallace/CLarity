@@ -58,10 +58,10 @@ static void _check_buffer_size(const Buffer & b,
 {
     if (_wrong_buffer_size(b, expected_size, expected_depth)) {
         std::stringstream msg;
-        msg << "Invalid Argument. Expected buffer with size of (" << std::get<0>(expected_size);
-        msg << ", " << std::get<1>(expected_size) << ", " << expected_depth << ") but got a ";
-        msg << "buffer of size (" << std::get<0>(b.size()) << ", " << std::get<1>(b.size());
-        msg << ", " << b.depth() << ")";
+        msg << "Invalid Argument. Expected buffer with size of (" << std::get<0>(expected_size)
+            << ", " << std::get<1>(expected_size) << ", " << static_cast<int>(expected_depth) 
+            << ") but got a " << "buffer of size (" << std::get<0>(b.size()) << ", " 
+            << std::get<1>(b.size()) << ", " << b.depth() << ")";
 
         throw std::invalid_argument(msg.str());
     }
@@ -147,27 +147,25 @@ CL_Range_Calculator::~CL_Range_Calculator()
 
 void CL_Range_Calculator::Calculate(const Camera & cam, const Terrain & t, Buffer & rng)
 {
-    std::cerr << "Start" << std::endl;
     const auto & fp_size = cam.focal_plane_dimensions();
     const auto rows = std::get<0>(fp_size);
     const auto cols = std::get<1>(fp_size);
 
     _check_buffer_size(rng, fp_size, 1);
 
-    if (m_camera_coords == nullptr || _wrong_buffer_size(*m_camera_coords, fp_size, 3)) {
-        m_camera_coords = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, rows, cols, 3));
+    if (m_camera_coords == nullptr || _wrong_buffer_size(*m_camera_coords, fp_size, 4)) {
+        m_camera_coords = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, rows, cols, 4));
     }
 
     run_pix2cam(cam, *m_camera_coords, false);
 
-    if (m_world_coords == nullptr || _wrong_buffer_size(*m_world_coords, fp_size, 3)) {
-        m_world_coords = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, rows, cols, 3));
+    if (m_world_coords == nullptr || _wrong_buffer_size(*m_world_coords, fp_size, 4)) {
+        m_world_coords = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, rows, cols, 4));
     }
 
     run_cam2world(cam, *m_camera_coords, *m_world_coords, false);
 
     run_map_range(cam, t, *m_world_coords, rng, true);
-    std::cerr << "Done" << std::endl;
 }
 
 
@@ -185,13 +183,13 @@ void CL_Range_Calculator::run_pix2cam(const Camera & cam, Buffer & cam_coords, c
     const auto cols = std::get<1>(fp_size);
 
     const auto sz = std::make_tuple(static_cast<uint32_t>(rows), static_cast<uint32_t>(cols));
-    _check_buffer_size(cam_coords, sz, 3); 
+    _check_buffer_size(cam_coords, sz, 4); 
 
     const cl::CommandQueue & queue = m_device_queues[m_device_idx];
     cl::Kernel & kernel = m_kernels->get("pix2cam");
 
     // Set up arguments
-    const cl_float3 boresight {{ rows / 2.f, cols / 2.f, cam.focal_length() }};
+    const cl_float4 boresight {{ rows / 2.f, cols / 2.f, cam.focal_length(), 0.0 }};
     Device_Buffer & cam_coords_db = dynamic_cast<Device_Buffer &>(cam_coords);
 
     cl_int err = CL_SUCCESS;
@@ -332,10 +330,10 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
     const auto cols = std::get<1>(fp_size);
 
     const auto sz = std::make_tuple(static_cast<uint32_t>(rows), static_cast<uint32_t>(cols));
-    _check_buffer_size(world_coords, sz, 3); 
+    _check_buffer_size(world_coords, sz, 4); 
 
     const cl::CommandQueue & queue = m_device_queues[m_device_idx];
-    cl::Kernel & kernel = m_kernels->get("cam2world");
+    cl::Kernel & kernel = m_kernels->get("map_range");
 
     // Set up args
     const auto & pos = cam.position();
@@ -347,16 +345,62 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
     const cl_float2 bounds = {{ static_cast<float>(std::get<0>(terrain_size)), 
                                 static_cast<float>(std::get<1>(terrain_size)) }};
 
-    kernel.setArg(0, origin);
-    kernel.setArg(1, world_coords_db.get_cl_buffer());
-    kernel.setArg(2, terrain_db.get_cl_buffer());
-    kernel.setArg(3, t.scale());
-    kernel.setArg(4, t.scale() * std::get<0>(terrain_size) * std::sqrt(3.0f));
-    kernel.setArg(5, t.scale() / 2.0f);
-    kernel.setArg(6, bounds);
-    kernel.setArg(7, range_db.get_cl_buffer());
-
     cl_int err = CL_SUCCESS;
+    err = kernel.setArg(0, origin);
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 0 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(1, world_coords_db.get_cl_buffer());
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 1 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(2, terrain_db.get_cl_buffer());
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 2 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(3, t.scale());
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 3 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(4, t.scale() * std::get<0>(terrain_size) * std::sqrt(3.0f));
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 4 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(5, t.scale() / 2.0f);
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 5 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(6, bounds);
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 6 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(7, static_cast<int>(cols));
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 7 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(8, range_db.get_cl_buffer());
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 8 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+
     err = queue.enqueueNDRangeKernel(kernel, 
                                      cl::NullRange, 
                                      cl::NDRange(rows, cols), 
@@ -367,7 +411,7 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
         msg << "Failed to enqueue map_rng kernel (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
-    
+
     queue.finish();
 
     if (copy) {

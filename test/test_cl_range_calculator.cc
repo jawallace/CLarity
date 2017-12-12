@@ -28,7 +28,7 @@ TEST(cl_range_calculator, pix2cam)
     std::shared_ptr<cl::Context> ctx = get_context();
 
     Camera cam(90 * M_PI / 180, 256, 256);
-    Device_Buffer b(*ctx, 256, 256, 3);
+    Device_Buffer b(*ctx, 256, 256, 4);
 
     CL_Range_Calculator calculator(ctx);
 
@@ -38,6 +38,7 @@ TEST(cl_range_calculator, pix2cam)
             b.at(i, j, 0) = 0.0; 
             b.at(i, j, 1) = 0.0; 
             b.at(i, j, 2) = 0.0; 
+            b.at(i, j, 3) = 0.0; 
         }
     }
 
@@ -50,6 +51,10 @@ TEST(cl_range_calculator, pix2cam)
             auto x = b.at(i, j, 0);
             auto y = b.at(i, j, 1);
             auto z = b.at(i, j, 2);
+
+            ASSERT_FALSE(std::isnan(x));
+            ASSERT_FALSE(std::isnan(y));
+            ASSERT_FALSE(std::isnan(z));
 
             if (x == 0.0 && y == 0.0 && z == 0.0) {
                 count++;
@@ -193,7 +198,11 @@ TEST(cl_range_calculator, calculate)
 {
     std::shared_ptr<cl::Context> ctx = get_context();
 
+    // camera is 1000.0 m above a flat earth looking straight down
     Camera cam(90 * M_PI / 180, 256, 256);
+    cam.set_position(std::make_tuple(256*30.0, 256*30.0, 1000.0));
+    cam.set_pitch(M_PI * 90.0 / 180.0);
+
     Device_Buffer b(*ctx, 256, 256);
     auto tb = std::make_shared<Device_Buffer>(*ctx, 512, 512);
     Terrain t(tb, 30.0);
@@ -203,28 +212,25 @@ TEST(cl_range_calculator, calculate)
     // zero buffer 
     for (auto i = 0; i < 256; i++) {
         for (auto j = 0; j < 256; j++) {
-            tb->at(i, j, 0) = 0.0; 
-            tb->at(i, j, 1) = 0.0; 
-            tb->at(i, j, 2) = 0.0; 
+            tb->at(i, j) = 0.0; 
             
             b.at(i, j) = 0.0; 
         }
     }
 
-    //calculator.Calculate(cam, t, b);
+    calculator.Calculate(cam, t, b);
 
+    /*
     // check that buffer is not zero
-    int count = 0;
     for (auto i = 0; i < 256; i++) {
         for (auto j = 0; j < 256; j++) {
             auto x = b.at(i, j, 0);
 
-            if (x == 0.0) {
-                count++;
-            }
+            ASSERT_EQ(0, x);            
         }
     }
+    */
 
-    ASSERT_EQ(0, count);
+    ASSERT_NEAR(b.at(127, 127), 1000., 15.);
 }
 }

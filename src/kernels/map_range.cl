@@ -16,7 +16,7 @@
 //! @param[in]  pitch           the pitch of the image
 //! @param[out] range           the output buffer of range-per-pixel
 __kernel void map_range(const float3 origin,
-                        __global float3 * world_coords,
+                        __global float4 * world_coords,
                         __global float * height_map,
                         const float scale,
                         const float max_range,
@@ -28,14 +28,17 @@ __kernel void map_range(const float3 origin,
     // Get location and corresponding input values
     const int2 pos = { get_global_id(0), get_global_id(1) };
     const int offset = pos.x * pitch + pos.y;
-    const float3 pv = world_coords[offset];
-   
+    const float3 pv = world_coords[offset].xyz;
+
     // Determine parameters of the walk
     float step = max_error / scale;
+    float original_step = step;
     const int iterations = ceil(max_range / max_error);
 
     // Perform the walk
-    float3 loc = origin / scale;
+    float3 origin_pix = origin / scale;
+    float3 loc = origin_pix;
+    int keep_going = 1;
 
     for (int i = 0; i < iterations; i++) {
         loc = loc + (step * pv);
@@ -44,7 +47,9 @@ __kernel void map_range(const float3 origin,
         const int c = clamp(bounds.x - loc.y, 0.0f, bounds.x);
 
         const float height = height_map[r * pitch + c];
-        const int keep_going = (height >= loc.z);
+        if (loc.z <= height) {
+          keep_going = 0;
+        }
 
         // setup the next step
         // If we have hit the ground, keep_going will be 0, and we won't move forward anymore
@@ -54,7 +59,7 @@ __kernel void map_range(const float3 origin,
 
     // After all iterations, the range is the length of the vector difference of our current
     // location and the origin
-    const float range_pixels = length(loc - origin);
+    const float range_pixels = length(loc - origin_pix);
 
     range[offset] = clamp(scale * range_pixels, 0.0f, max_range);
 }

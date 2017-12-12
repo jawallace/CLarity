@@ -83,7 +83,7 @@ CL_Range_Calculator::CL_Range_Calculator()
     m_ctx = get_context();
     m_ctx->getInfo(CL_CONTEXT_DEVICES, &m_devices);
 
-    m_rot = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, 3, 3, 1, true));
+    m_rot = std::unique_ptr<Device_Buffer>(new Device_Buffer(*m_ctx, 3, 4, 1, true));
    
     // Create a queue for each device
     for (const auto & d : m_devices) {
@@ -113,7 +113,7 @@ CL_Range_Calculator::CL_Range_Calculator(const std::shared_ptr<cl::Context> ctx)
     , m_camera_coords()
     , m_world_coords()
     , m_kernels()
-    , m_rot(new Device_Buffer(*m_ctx, 3, 3, 1, true))
+    , m_rot(new Device_Buffer(*m_ctx, 3, 4, 1, true))
     , m_device_idx(0)
 {
     // Get the devices for the context
@@ -252,7 +252,7 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
     const auto cols = std::get<1>(fp_size);
 
     const auto sz = std::make_tuple(static_cast<uint32_t>(rows), static_cast<uint32_t>(cols));
-    _check_buffer_size(world_coords, sz, 3); 
+    _check_buffer_size(world_coords, sz, 4); 
 
     const cl::CommandQueue & queue = m_device_queues[m_device_idx];
     cl::Kernel & kernel = m_kernels->get("cam2world");
@@ -275,7 +275,7 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
         msg << "Failed to set cam2world kernel arg 1 (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
-    err = kernel.setArg(2, static_cast<const int>(cols));
+    err = kernel.setArg(2, static_cast<int>(cols));
     if (err != CL_SUCCESS) {
         std::stringstream msg;
         msg << "Failed to set cam2world kernel arg 2 (cl error = " << err << ")";
@@ -298,8 +298,11 @@ void CL_Range_Calculator::run_cam2world(const Camera & cam,
         msg << "Failed to enqueue cam2world kernel (cl error = " << err << ")";
         throw std::runtime_error(msg.str());
     }
-    
-    queue.finish();
+
+    err = queue.finish();
+    if (err != CL_SUCCESS) {
+        throw std::runtime_error("clFinish failed with " + std::to_string(err)); 
+    }
 
     if (copy) {
         // Copy from device to host

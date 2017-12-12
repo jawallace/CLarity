@@ -5,6 +5,7 @@
 //! @copyright  MIT
 
 // CLarity Imports
+#include "buffer.h"
 #include "camera.h"
 
 // Standard Imports
@@ -76,6 +77,63 @@ TEST(camera, focal_length)
     Camera cam(M_PI * 120.0 / 180.0, 200, 200);
 
     ASSERT_FLOAT_EQ(57.735027, cam.focal_length());
+}
+
+
+TEST(camera, get_rot)
+{
+    Camera cam(M_PI * 120.0 / 180.0, 200, 200);
+    Buffer rot(3, 4);
+    for (auto i = 0; i < 3; i++) {
+      for (auto j = 0; j < 3; j++) {
+        rot.at(i, j) = 0.0;
+      }
+    }
+
+    cam.set_yaw(M_PI * 90.0 / 180.0);
+
+    cam.get_rotation_matrix(rot.data());
+
+    ASSERT_NEAR(rot.at(0, 0), 0.0, 0.00005);
+    ASSERT_NEAR(rot.at(0, 1), -1.0, 0.00005);
+    ASSERT_NEAR(rot.at(0, 2), 0.0, 0.00005);
+
+    ASSERT_NEAR(rot.at(1, 0), 1.0, 0.00005);
+    ASSERT_NEAR(rot.at(1, 1), 0.0, 0.00005);
+    ASSERT_NEAR(rot.at(1, 2), 0.0, 0.00005);
+
+    ASSERT_NEAR(rot.at(2, 0), 0.0, 0.00005);
+    ASSERT_NEAR(rot.at(2, 1), 0.0, 0.00005);
+    ASSERT_NEAR(rot.at(2, 2), 1.0, 0.00005);
+}
+
+
+TEST(camera, get_rot_combination)
+{
+    Camera cam(M_PI * 120.0 / 180.0, 200, 200);
+    Buffer rot(3, 4);
+    for (auto i = 0; i < 3; i++) {
+      for (auto j = 0; j < 3; j++) {
+        rot.at(i, j) = 0.0;
+      }
+    }
+
+    cam.set_yaw(M_PI * 45.0 / 180.0);
+    cam.set_pitch(M_PI * 45.0 / 180.0);
+
+    cam.get_rotation_matrix(rot.data());
+
+    ASSERT_NEAR(rot.at(0, 0), 0.5, 0.00005);
+    ASSERT_NEAR(rot.at(0, 1), -.5, 0.00005);
+    ASSERT_NEAR(rot.at(0, 2), .7071068, 0.00005);
+
+    ASSERT_NEAR(rot.at(1, 0), .7071068, 0.00005);
+    ASSERT_NEAR(rot.at(1, 1), .7071068, 0.00005);
+    ASSERT_NEAR(rot.at(1, 2), 0.0, 0.00005);
+
+    ASSERT_NEAR(rot.at(2, 0), -0.5, 0.00005);
+    ASSERT_NEAR(rot.at(2, 1), 0.5, 0.00005);
+    ASSERT_NEAR(rot.at(2, 2), .7071068, 0.00005);
 }
 
 }

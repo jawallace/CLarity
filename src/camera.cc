@@ -127,22 +127,26 @@ void Camera::set_pitch(const float pitch)
 
 void Camera::get_rotation_matrix(std::shared_ptr<float> rot_buffer) const 
 {
-    const float alpha = m_yaw_rad;
-    const float gamma = m_pitch_rad;
+    //const float r = 0.0; 
+    const float p = m_pitch_rad; 
+    const float y = m_yaw_rad; 
 
     float * rot = rot_buffer.get();
 
-    rot[0] = std::cos(alpha);
-    rot[1] = - std::sin(alpha);
-    rot[2] = 0.f;
-    
-    rot[3] = std::sin(alpha) * std::cos(gamma);
-    rot[4] = std::cos(alpha) * std::cos(gamma);
-    rot[5] = 0.f;
-    
-    rot[6] = std::sin(alpha) * std::sin(gamma);
-    rot[7] = std::cos(alpha) * std::sin(gamma);
-    rot[8] = std::cos(gamma);
+    rot[0] = std::cos(p) * std::cos(y); 
+    rot[1] = - std::cos(p) * std::sin(y);
+    rot[2] = std::sin(p);
+    rot[3] = 0.0;
+
+    rot[4] = std::sin(y);
+    rot[5] = std::cos(y);
+    rot[6] = 0.0;
+    rot[7] = 0.0;
+
+    rot[8] = - std::cos(y) * std::sin(p);
+    rot[9] = std::sin(p) * std::sin(y);
+    rot[10] = std::cos(p);
+    rot[11] = 0.0;
 }
 
 

@@ -47,7 +47,8 @@ void display_grayscale_buffer(const Buffer & b,
         }
     }
 
-    QByteArray grayscale(rows * cols * 4, 255);
+    static constexpr uint8_t _DEFAULT_VAL = 255;
+    QByteArray grayscale(rows * cols * 4, static_cast<char>(_DEFAULT_VAL));
     for (uint32_t r = 0; r < rows; r++) {
         for (uint32_t c = 0; c < cols; c++) {
             const uint32_t offset = (r * cols * 4) + (c * 4);

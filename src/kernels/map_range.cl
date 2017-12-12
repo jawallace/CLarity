@@ -23,11 +23,13 @@ __kernel void map_range(const float3 origin,
                         const float max_error,
                         const float2 bounds,
                         const int pitch,
+                        const int num_rows,
                         __global float * range)
 {
     // Get location and corresponding input values
     const int2 pos = { get_global_id(0), get_global_id(1) };
     const int offset = pos.x * pitch + pos.y;
+    const int output_offset = (num_rows - pos.x) * pitch + pos.y;
     const float3 pv = world_coords[offset].xyz;
 
     // Determine parameters of the walk
@@ -61,6 +63,6 @@ __kernel void map_range(const float3 origin,
     // location and the origin
     const float range_pixels = length(loc - origin_pix);
 
-    range[offset] = clamp(scale * range_pixels, 0.0f, max_range);
+    range[output_offset] = clamp(scale * range_pixels, 0.0f, max_range);
 }
 

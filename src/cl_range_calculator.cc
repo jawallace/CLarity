@@ -394,7 +394,13 @@ void CL_Range_Calculator::run_map_range(const Camera & cam,
       msg << "Failed to set kernel arg 7 for map_range (cl error = " << err << ")";
       throw std::runtime_error(msg.str());
     }
-    err = kernel.setArg(8, range_db.get_cl_buffer());
+    err = kernel.setArg(8, static_cast<int>(rows));
+    if (err != CL_SUCCESS) {
+      std::stringstream msg;
+      msg << "Failed to set kernel arg 8 for map_range (cl error = " << err << ")";
+      throw std::runtime_error(msg.str());
+    }
+    err = kernel.setArg(9, range_db.get_cl_buffer());
     if (err != CL_SUCCESS) {
       std::stringstream msg;
       msg << "Failed to set kernel arg 8 for map_range (cl error = " << err << ")";

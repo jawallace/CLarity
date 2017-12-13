@@ -14,7 +14,7 @@ git submodule update
 mkdir _build
 cd _build
 cmake ..
-make
+make -j8
 ``` 
 
 ## Running Unit Tests

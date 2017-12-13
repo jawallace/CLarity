@@ -21,6 +21,7 @@ target_link_libraries(clarity ${OpenCL_LIBRARY})
 
 option(BUILD_UNITTESTS "Builds the unitests for clarity" ON)
 option(BUILD_DEMO "Builds the demo for CLarity" ON)
+option(BUILD_CLI "Builds the demo for CLarity" ON)
 
 if(BUILD_UNITTESTS)
     enable_testing()
@@ -35,4 +36,8 @@ endif()
 
 if(BUILD_DEMO)
     add_subdirectory(demo)
+endif()
+
+if(BUILD_CLI)
+    add_subdirectory(cli)
 endif()
